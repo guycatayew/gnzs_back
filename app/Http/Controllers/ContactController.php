@@ -7,19 +7,28 @@ use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
+    protected $link_data;
+
+    public function __construct()
+    {
+        $this->link_data = new TokenController();
+    }
+
     public function create_contact(Request $request)
     {
         $post_data = [
             'name' => [$request->name]
         ];
-        $client = new Client(['base_uri' => env('BASE_URL')]);
+        $post_info = $this->link_data->get_token();
+
+        $client = new Client(['base_uri' => 'https://'.$post_info['base_url']]);
         try {
 
             $client_data = $client->post('/api/v4/contacts', [
                 'body' => json_encode($post_data),
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . env('ACCESS_TOKEN')
+                    'Authorization' => 'Bearer ' . $post_info['access_token']
                 ]
             ]);
             $body = json_decode($client_data->getBody());

@@ -7,13 +7,21 @@ use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+    protected $link_data;
+
+    public function __construct()
+    {
+        $this->link_data = new TokenController();
+    }
+
     public function create_company(Request $request)
     {
         $post_data = [
             'name' => [$request->name]
         ];
+        $post_info = $this->link_data->get_token();
 
-        $client = new Client(['base_uri' => env('BASE_URL')]);
+        $client = new Client(['base_uri' => 'https://'.$post_info['base_url']]);
 
         try {
 
@@ -21,7 +29,7 @@ class CompanyController extends Controller
                 'body' => json_encode($post_data),
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . env('ACCESS_TOKEN')
+                    'Authorization' => 'Bearer ' . $post_info['access_token']
                 ]
             ]);
 
